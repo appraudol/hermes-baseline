@@ -1,0 +1,214 @@
+# Hermes Baseline — Global Configuration v1.0
+# =============================================================================
+# This is the MINIMAL global config for a production LXC.
+# API keys are pulled from Vaultwarden at runtime (not stored here).
+# Profile-specific settings (gateway tokens) live in the profile's config.
+
+# ── Model & Provider ─────────────────────────────────────────────────────────
+model:
+  default: deepseek-v4-flash
+  provider: opencode-go
+  base_url: https://opencode.ai/zen/go/v1
+  api_mode: anthropic_messages
+
+# ── Fallback Chain ───────────────────────────────────────────────────────────
+providers:
+  fallback-flash:
+    provider: opencode-go
+    model: minimax-m2.7
+    base_url: https://opencode.ai/zen/go/v1
+    api_mode: anthropic_messages
+  ollama-qwen:
+    provider: ollama
+    model: qwen2.5:3b
+    base_url: http://127.0.0.1:11434/v1
+    api_mode: openai
+
+fallback_providers:
+  - fallback-flash
+  - ollama-qwen
+
+# ── Agent ────────────────────────────────────────────────────────────────────
+agent:
+  max_turns: 90
+  gateway_timeout: 1800
+  restart_drain_timeout: 60
+  api_max_retries: 3
+  tool_use_enforcement: auto
+  gateway_timeout_warning: 900
+  clarify_timeout: 600
+  gateway_notify_interval: 180
+  gateway_auto_continue_freshness: 3600
+  image_input_mode: auto
+  reasoning_effort: high
+
+# ── Terminal ─────────────────────────────────────────────────────────────────
+terminal:
+  backend: local
+  modal_mode: auto
+  cwd: .
+  timeout: 180
+  persistent_shell: true
+
+# ── Delegation (Sub-agents) ──────────────────────────────────────────────────
+delegation:
+  model: deepseek-v4-flash
+  provider: opencode-go
+  inherit_mcp_toolsets: true
+  max_iterations: 50
+  child_timeout_seconds: 600
+  reasoning_effort: high
+  max_concurrent_children: 3
+  max_spawn_depth: 1
+  orchestrator_enabled: true
+  subagent_auto_approve: false
+
+# ── Memory ───────────────────────────────────────────────────────────────────
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 2200
+  nudge_interval: 10
+  flush_min_turns: 6
+
+# ── Skills ───────────────────────────────────────────────────────────────────
+skills:
+  template_vars: true
+  creation_nudge_interval: 15
+
+# ── Checkpoints ──────────────────────────────────────────────────────────────
+checkpoints:
+  enabled: true
+  max_snapshots: 20
+  max_total_size_mb: 500
+  auto_prune: true
+  retention_days: 7
+
+# ── Context & Compression ────────────────────────────────────────────────────
+compression:
+  enabled: true
+  threshold: 0.75
+  target_ratio: 0.2
+  protect_last_n: 20
+  protect_first_n: 3
+
+prompt_caching:
+  cache_ttl: 5m
+
+context:
+  engine: compressor
+
+# ── Security ─────────────────────────────────────────────────────────────────
+security:
+  allow_private_urls: false
+  redact_secrets: true
+  tirith_enabled: true
+  tirith_timeout: 5
+  tirith_fail_open: true
+
+privacy:
+  redact_pii: true
+
+# ── Tool Limits ──────────────────────────────────────────────────────────────
+tool_output:
+  max_bytes: 50000
+  max_lines: 2000
+  max_line_length: 2000
+
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: false
+  warn_after:
+    exact_failure: 2
+    same_tool_failure: 3
+    idempotent_no_progress: 2
+  hard_stop_after:
+    exact_failure: 5
+    same_tool_failure: 8
+    idempotent_no_progress: 5
+
+# ── Approvals ────────────────────────────────────────────────────────────────
+approvals:
+  mode: manual
+  timeout: 60
+  cron_mode: deny
+  mcp_reload_confirm: true
+
+# ── Cron ─────────────────────────────────────────────────────────────────────
+cron:
+  wrap_response: true
+  max_parallel_jobs: null
+
+# ── Auxiliary Models ─────────────────────────────────────────────────────────
+auxiliary:
+  vision:
+    provider: opencode-go
+    model: deepseek-v4-flash
+    timeout: 120
+  web_extract:
+    provider: opencode-go
+    model: deepseek-v4-pro
+    timeout: 360
+  compression:
+    provider: opencode-go
+    model: deepseek-v4-flash
+    timeout: 120
+  skills_hub:
+    provider: opencode-go
+    model: deepseek-v4-pro
+    timeout: 30
+  approval:
+    provider: opencode-go
+    model: minimax-m2.7
+    timeout: 30
+  mcp:
+    provider: opencode-go
+    model: deepseek-v4-flash
+    timeout: 30
+  title_generation:
+    provider: opencode-go
+    model: minimax-m2.7
+    timeout: 30
+  triage_specifier:
+    provider: opencode-go
+    model: deepseek-v4-pro
+    timeout: 120
+  kanban_decomposer:
+    provider: opencode-go
+    model: deepseek-v4-pro
+    timeout: 180
+  curator:
+    provider: opencode-go
+    model: deepseek-v4-flash
+    timeout: 600
+  session_search:
+    provider: opencode-go
+    model: deepseek-v4-flash
+    timeout: 30
+    max_concurrency: 3
+
+# ── Curator (Auto-maintenance) ───────────────────────────────────────────────
+curator:
+  enabled: true
+  interval_hours: 168
+  stale_after_days: 30
+  archive_after_days: 90
+  backup:
+    enabled: true
+    keep: 5
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level: INFO
+  max_size_mb: 5
+  backup_count: 3
+  memory_monitor:
+    enabled: true
+    interval_seconds: 300
+
+# ── Code Execution ───────────────────────────────────────────────────────────
+code_execution:
+  mode: project
+  timeout: 300
+  max_tool_calls: 50

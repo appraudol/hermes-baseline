@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes Dashboard (HTTP backend on :9118)
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/hermes/.hermes/hermes-agent/venv/bin/hermes dashboard --host 127.0.0.1 --port 9118
+WorkingDirectory=/home/hermes/.hermes/hermes-agent
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

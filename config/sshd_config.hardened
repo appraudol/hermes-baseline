@@ -1,0 +1,13 @@
+PermitRootLogin no
+PasswordAuthentication no
+MaxAuthTries 2
+MaxSessions 2
+LoginGraceTime 30
+X11Forwarding no
+AllowTcpForwarding no
+AllowAgentForwarding no
+ClientAliveInterval 120
+ClientAliveCountMax 2
+Compression delayed
+LogLevel VERBOSE
+Port 22

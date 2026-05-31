@@ -1,0 +1,39 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:CROWDSEC_CHAIN - [0:0]
+:f2b-sshd - [0:0]
+
+# Loopback (CRITICAL — DNS depends on this)
+-A INPUT -i lo -j ACCEPT
+
+# Established connections
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Proxmox bridge (inter-LXC communication: Vaultwarden, etc.)
+-A INPUT -s 10.1.1.0/24 -j ACCEPT
+
+# Home VPN subnet (WireGuard/Tailscale)
+-A INPUT -s 10.0.0.0/24 -j ACCEPT
+
+# Home LAN subnet (local network)
+-A INPUT -s 192.168.1.0/24 -j ACCEPT
+
+# Tailscale mesh (Oracle VPS, MacBook)
+-A INPUT -s 100.64.0.0/10 -j ACCEPT
+
+# ICMP (ping)
+-A INPUT -p icmp -j ACCEPT
+
+# CrowdSec IPS (auto-blocking)
+-A INPUT -j CROWDSEC_CHAIN
+
+# fail2ban SSH protection
+-A INPUT -p tcp -m multiport --dports 22 -j f2b-sshd
+
+# Log + Reject everything else (10/min limit to avoid log flood)
+-A INPUT -m limit --limit 10/min -j LOG --log-prefix "FW-BLOCKED: "
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+
+COMMIT

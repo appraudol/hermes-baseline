@@ -1,0 +1,16 @@
+[Unit]
+Description=Hermes Dashboard HTTPS Proxy (:9119 → :9118)
+After=hermes-dashboard.service
+BindsTo=hermes-dashboard.service
+
+[Service]
+Type=simple
+ExecStart=/home/hermes/.hermes/hermes-agent/venv/bin/python /home/hermes/.hermes/scripts/dashboard-https-proxy.py
+WorkingDirectory=/home/hermes/.hermes
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/hermes/hermes-dashboard-https.log
+StandardError=append:/home/hermes/hermes-dashboard-https.log
+
+[Install]
+WantedBy=default.target
