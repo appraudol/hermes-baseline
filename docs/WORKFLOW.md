@@ -14,6 +14,43 @@
 | Vaultwarden LXC | 10.1.1.10:8443, secrets pre-loaded |
 | GitHub repository | For Hermes config backup (optional but recommended) |
 | API keys | OpenCode, Telegram, DocuSeal — stored in Vaultwarden |
+| Telegram Bots | Two bots per project: @ProjectDevBot (Oracle) + @ProjectBot (OVH) |
+
+---
+
+## Phase 0 — Telegram Bot Setup (one time per project)
+
+### 0.1 Create Both Bots in @BotFather
+
+```
+@BotFather commands:
+  /newbot → @DeepSecDevBot   (Oracle, development)
+  /newbot → @DeepSecBot      (OVH, production)
+```
+
+### 0.2 Store Tokens in Vaultwarden
+
+| Secret Name | Value | Environment |
+|-------------|-------|-------------|
+| `TELEGRAM_DEEPSEC_DEV_TOKEN` | `123:abc...` | Oracle |
+| `TELEGRAM_DEEPSEC_PROD_TOKEN` | `456:def...` | OVH |
+
+### 0.3 Gateway Strategy
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  RULE: One bot token = one Hermes instance              │
+│                                                          │
+│  Oracle (dev)          OVH (prod)                        │
+│  ───────────           ─────────                         │
+│  @DeepSecDevBot        @DeepSecBot                       │
+│  Token: dev            Token: prod                       │
+│                                                          │
+│  export-profile.sh exports .env with DEV token.         │
+│  After import on OVH → replace token with PROD token.   │
+│  Vaultwarden injects the right one per environment.     │
+└──────────────────────────────────────────────────────────┘
+```
 
 ---
 
